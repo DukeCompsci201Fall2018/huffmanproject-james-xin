@@ -77,26 +77,24 @@ public class HuffProcessor {
 	}
 	
 	public HuffNode readTreeHeader(BitInputStream in) {
-		int bit;
-		HuffNode root = new HuffNode(0,0);
-		while (true) {
-	           bit = in.readBits(1);
-	           if (bit == -1) {
-	               throw new HuffException("bad input, no PSEUDO_EOF");
-	           }
-	           if (bit == 0) {
-	        	    root.myLeft = readTreeHeader(in);
-	        	    root.myRight = readTreeHeader(in);
-	        	    return new HuffNode(0,0,root.myLeft,root.myRight);
-	        	}
-	        	else {
-	        	    int value = in.readBits(BITS_PER_WORD+1);
-	        	    return new HuffNode(value,0,null,null);
-	        	}
-		}
+		int bit = in.readBits(1);
+        if (bit == -1) {
+            throw new HuffException("bad input, no PSEUDO_EOF");
+        }
+        if (bit == 0) {
+     	    HuffNode left = readTreeHeader(in);
+     	    HuffNode right = readTreeHeader(in);
+     	    return new HuffNode(0,1,left,right);
+     	}
+     	else {
+     	    int value = in.readBits(BITS_PER_WORD+1);
+     	    return new HuffNode(value,0,null,null);
+     	}    
 	}
 	
 	public HuffNode readCompressedBits(HuffNode root, BitInputStream in, BitOutputStream out) {
+		
+		
 		
 	}
 }
