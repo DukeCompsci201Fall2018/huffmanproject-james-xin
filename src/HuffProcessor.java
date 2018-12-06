@@ -100,7 +100,55 @@ public class HuffProcessor {
 		
 		String[] encodings = new String[ALPH_SIZE + 1];
 		codingHelper(root, "", encodings);
+		return encodings;
+	}
+	
+	public void codingHelper(HuffNode root, String path, String[] encodings) {
+		if (root.myValue != -1) {
+			encodings[root.myValue] = path;
+	        return;
+		}
 		
+		codingHelper(root.myLeft, path + "0", encodings);
+		codingHelper(root.myRight, path + "1", encodings);
+	}
+	
+	public void writeHeader(HuffNode root, BitOutputStream out) {
+	    if (root.myValue != -1) {
+	    	    out.writeBits(1,  1);
+	    	    out.writeBits(BITS_PER_WORD + 1, root.myValue);
+	    }
+	    else {
+
+	    	    out.writeBits(1, 0);
+	    	    writeHeader(root.myLeft, out);
+	    	    writeHeader(root.myRight, out);
+	    }
+	    
+	}
+	
+	public void writeCompressedBits(String[] codings, BitInputStream in, BitOutputStream out) {
+		int bits = 1;
+		while (bits >= 0) { 
+			bits = in.readBits(BITS_PER_WORD);
+			if (bits == -1) {
+				writeStringToBits(codings, out, ALPH_SIZE);
+				return;
+			}
+			writeStringToBits(codings, out, bits);
+			
+		}
+		
+	}
+
+	private void writeStringToBits(String[] codings, BitOutputStream out, int bits) {
+		String code = codings[bits];
+		for (int i = 0; i < code.length(); i++) {
+			String s = code.substring(i, i+1);
+			int k = Integer.parseInt(s);
+			out.writeBits(1, k);
+		}
+		return;
 	}
 	
 	
